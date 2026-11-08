@@ -1,0 +1,45 @@
+<!doctype html><html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maxy</title><link rel="manifest" href="/static/manifest.json"><link rel="icon" href="/assets/logo.png">
+<style>
+:root{--bg:#0b0f1a;--card:#141a2b;--tx:#e8ecf5;--mut:#8b94ab;--buy:#16a34a;--sell:#dc2626;--hold:#64748b;--ac:#2563eb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,sans-serif;padding:env(safe-area-inset-top) 12px 24px}
+header{display:flex;align-items:center;gap:10px;padding:14px 0}header img{width:36px;height:36px;border-radius:50%}
+header b{font-size:20px}header small{color:var(--mut);display:block}#upd{margin-left:auto;color:var(--mut);font-size:12px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
+.top{display:flex;align-items:center;justify-content:space-between}.nm{font-weight:700;font-size:17px}
+.badge{padding:4px 12px;border-radius:99px;font-weight:700;font-size:13px}
+.BUY{background:var(--buy)}.SELL{background:var(--sell)}.HOLD,.CLOSED{background:var(--hold)}
+.px{font-size:22px;margin:6px 0}.mut{color:var(--mut);font-size:13px}
+.bar{height:6px;background:#26304a;border-radius:9px;position:relative;margin:8px 0}
+.bar i{position:absolute;top:-3px;width:12px;height:12px;border-radius:50%;background:var(--ac);transform:translateX(-50%)}
+.row{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:6px}.sl{color:#f87171}.tp{color:#4ade80}
+svg{width:100%;height:60px;margin-top:6px}.news{margin-top:8px;font-size:13px}.news p{margin:4px 0;color:var(--mut)}
+.warn{color:var(--mut);font-size:11px;text-align:center;margin-top:16px}.dim{opacity:.55}
+</style></head><body>
+<header><img src="/assets/logo.png" alt=""><div><b id="bn">Maxy</b><small id="tg"></small></div><span id="upd"></span></header>
+<div id="list"><div class="card mut">Yuklanmoqda… birinchi tahlil 20–40 soniya oladi.</div></div>
+<div class="warn">Moliyaviy maslahat emas. Foyda kafolatlanmaydi — risk sizda.</div>
+<script>
+const E=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function spark(a,c){if(!a||a.length<2)return"";const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;
+const p=a.map((v,i)=>(i/(a.length-1)*300).toFixed(1)+","+(55-(v-mn)/r*50).toFixed(1)).join(" ");
+return`<svg viewBox="0 0 300 60" preserveAspectRatio="none"><polyline fill="none" stroke="${c}" stroke-width="2" points="${p}"/></svg>`}
+const L={BUY:"SOTIB OL",SELL:"SOT",HOLD:"KUT",CLOSED:"YOPIQ"};
+async function load(){try{const d=await(await fetch("/api/signals")).json();
+bn.textContent=d.brand.name;tg.textContent=d.brand.tagline;document.title=d.brand.name;
+if(d.updated)upd.textContent="Yangilandi: "+new Date(d.updated*1000).toLocaleTimeString();
+if(!d.signals.length)return;
+list.innerHTML=d.signals.map(s=>{if(s.error)return`<div class="card dim"><div class="nm">${E(s.name)}</div><div class="mut">${E(s.error)}</div></div>`;
+const a=s.action,col=a=="BUY"?"#16a34a":a=="SELL"?"#dc2626":"#64748b",pos=((s.score+1)/2*100).toFixed(0);
+return`<div class="card ${a=="CLOSED"?"dim":""}"><div class="top"><span class="nm">${E(s.name)}</span><span class="badge ${a}">${L[a]}</span></div>
+<div class="px">${s.price.toFixed(s.price<10?4:2)}</div>
+<div class="bar"><i style="left:${pos}%"></i></div>
+<div class="mut">Ball ${s.score} · Grafik ${s.tech} · Yangilik ${s.news}</div>
+${spark(s.spark,col)}
+<div class="row">${s.sl?`<span class="sl">SL ${s.sl.toFixed(4)}</span><span class="tp">TP ${s.tp.toFixed(4)}</span>`:""}
+${Object.entries(s.per_tf||{}).map(([k,v])=>`<span class="mut">${k}: ${v}</span>`).join("")}</div>
+<div class="news">${s.summary?`<p>📰 ${E(s.summary)}</p>`:""}${(s.headlines||[]).slice(0,3).map(h=>`<p>• ${E(h)}</p>`).join("")}</div></div>`}).join("")}
+catch(e){}}
+load();setInterval(load,15000);
+</script></body></html>

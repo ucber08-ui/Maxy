@@ -1,0 +1,36 @@
+# Barcha narsa shu yerdan sozlanadi
+# ====== BREND: o'z ismingiz va logotipingiz ======
+brand:
+  name: "Maxy"
+  tagline: "AI trading signals"
+  logo: assets/logo.png        # o'z logotipingizni shu yerga qo'ying (PNG)
+  color: "#2563eb"
+
+# ====== BOZOR SOATLARI ======
+markets:
+  crypto:   {type: always}
+  forex:    {type: forex}      # Yakshanba 22:00 - Juma 22:00 (UTC)
+  us_stock: {type: session, tz: America/New_York, open: "09:30", close: "16:00", days: [0,1,2,3,4]}
+
+symbols:
+  - {name: BTC,    ticker: BTC-USD,   market: crypto,   news: "Bitcoin BTC"}
+  - {name: ETH,    ticker: ETH-USD,   market: crypto,   news: "Ethereum ETH"}
+  - {name: EURUSD, ticker: EURUSD=X,  market: forex,    news: "EUR USD forex"}
+  - {name: AAPL,   ticker: AAPL,      market: us_stock, news: "Apple AAPL stock"}
+
+live_interval_sec: 60          # `python main.py live` rejimida tekshirish oralig'i
+cooldown_min: 240              # bir xil signalni qayta yubormaslik muddati
+
+timeframes:            # vaqt oralig'i: vazni
+  15m: 0.2
+  1h: 0.3
+  1d: 0.5
+
+weights: {technical: 0.65, news: 0.35}
+threshold: 0.35        # |ball| shundan oshsa BUY/SELL
+atr_sl: 1.5            # stop-loss = ATR * 1.5
+atr_tp: 3.0            # take-profit = ATR * 3
+send_hold: false       # HOLD signalni ham yuborish
+news_limit: 15
+claude_model: claude-sonnet-5-5   # ANTHROPIC_API_KEY bo'lsa yangilik tahlili Claude bilan
+backtest: {fee: 0.001, period: 2y}
